@@ -76,14 +76,6 @@ a {
     min-width: 550px;
 }
 
-.header__logo {
-    max-width: 170px;
-}
-
-.header__logo img {
-    width: 100%
-}
-
 .header__links {
     display: flex;
     align-items: center;
