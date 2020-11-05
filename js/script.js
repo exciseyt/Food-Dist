@@ -209,7 +209,8 @@ window.addEventListener("DOMContentLoaded", () => {
         "big"
     ).render();
 
-    // Реализация отправки данных форм на сервер
+    // Реализация отправки данных форм на сервер [XMLHttpRequest]
+    // UPD: Оптимизирован код отправки данных форм на сервер c Fetch API
     const forms = document.querySelectorAll("form");
     const message = {
         loading: "img/form/spinner.svg",
@@ -227,7 +228,7 @@ window.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", (e) => {
             e.preventDefault();
 
-            let statusMessage = document.createElement("img");
+            let statusMessage = document.createElement('img');
             statusMessage.src = message.loading;
             statusMessage.style.cssText = `
                 display: block;
@@ -236,29 +237,32 @@ window.addEventListener("DOMContentLoaded", () => {
             `;
             form.insertAdjacentElement("afterend", statusMessage);
 
-            const request = new XMLHttpRequest();
-            request.open("POST", "server.php");
-            request.setRequestHeader("Content-type", "application/json; charset=utf-8");
             const formData = new FormData(form);
 
             const object = {};
             formData.forEach(function (value, key) {
                 object[key] = value;
             });
-            const json = JSON.stringify(object);
 
-            request.send(json);
-
-            request.addEventListener("load", () => {
-                if (request.status === 200) {
-                    console.log(request.response);
+            fetch("server.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(object)
+            })
+                .then(data => data.text())
+                .then(data => {
+                    console.log(data);
                     showThanksModal(message.success);
-                    form.reset();
                     statusMessage.remove();
-                } else {
+                })
+                .catch(() => {
                     showThanksModal(message.failure);
-                }
-            });
+                })
+                .finally(() => {
+                    form.reset();
+                });
         });
     }
 
@@ -288,4 +292,5 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 12000);
 
     }
+
 });
