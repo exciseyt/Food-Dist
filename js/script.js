@@ -253,7 +253,6 @@ window.addEventListener("DOMContentLoaded", () => {
             })
                 .then(data => data.text())
                 .then(data => {
-                    console.log(data);
                     showThanksModal(message.success);
                     statusMessage.remove();
                 })
@@ -293,4 +292,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    // Маленькое дополнение: установлены nmp пакеты
+    fetch("http://localhost:3000/menu")
+        .then(data => data.json())
+        .then(res => console.log(res));
 });
+
+

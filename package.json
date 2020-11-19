@@ -1,0 +1,25 @@
+{
+  "name": "food-dist",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/narekmagtaghyan/Food-Dist.git"
+  },
+  "author": "Narek Magtaghyan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/narekmagtaghyan/Food-Dist/issues"
+  },
+  "homepage": "https://github.com/narekmagtaghyan/Food-Dist#readme",
+  "devDependencies": {
+    "json-server": "^0.16.3"
+  },
+  "dependencies": {
+    "npm-check-updates": "^10.2.1"
+  }
+}
