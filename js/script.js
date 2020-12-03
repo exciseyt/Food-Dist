@@ -45,7 +45,6 @@ window.addEventListener("DOMContentLoaded", () => {
             hours = Math.floor((t / (1000 * 60 * 60) % 24)),
             minutes = Math.floor((t / 1000 / 60) % 60),
             seconds = Math.floor((t / 1000) % 60);
-        console.log()
 
         return {
             "total": t,
@@ -153,10 +152,10 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         render() {
-            const element = document.createElement('div');
+            const element = document.createElement("div");
 
             if (this.classes.length === 0) {
-                this.element = '.menu__item';
+                this.element = "menu__item";
                 element.classList.add(this.element);
             } else {
                 this.classes.forEach(className => element.classList.add(className));
@@ -176,38 +175,24 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    new MenuCard(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        9,
-        ".menu .container",
-        "menu__item",
-        "big"
-    ).render();
+    // Получение данных с сервера
+    const getResources = async (url) => {
+        const res = await fetch(url);
 
-    new MenuCard(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        14,
-        ".menu .container",
-        "menu__item",
-        "big"
-    ).render();
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
 
-    new MenuCard(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        21,
-        ".menu .container",
-        "menu__item",
-        "big"
-    ).render();
+        return await res.json();
+    };
+
+    // Получаем данные с db.json для карточек меню
+    getResources("http://localhost:3000/menu")
+        .then(data => {
+            data.forEach(({ img, altimg, title, descr, price }) => {
+                new MenuCard(img, altimg, title, descr, price, ".menu .container").render();
+            });
+        });
 
     // Реализация отправки данных форм на сервер [XMLHttpRequest]
     // UPD: Оптимизирован код отправки данных форм на сервер c Fetch API
@@ -221,10 +206,23 @@ window.addEventListener("DOMContentLoaded", () => {
     const thanksModal = document.createElement("div");
 
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     });
 
-    function postData(form) {
+    // Постинг данных на сервер
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: data
+        });
+
+        return await res.json();
+    };
+
+    function bindPostData(form) {
         form.addEventListener("submit", (e) => {
             e.preventDefault();
 
@@ -239,22 +237,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const formData = new FormData(form);
 
-            const object = {};
-            formData.forEach(function (value, key) {
-                object[key] = value;
-            });
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-            fetch("server.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(object)
-            })
-                .then(data => data.text())
+            postData("http://localhost:3000/requests", json)
                 .then(data => {
                     showThanksModal(message.success);
                     statusMessage.remove();
+                    console.log(data);
                 })
                 .catch(() => {
                     showThanksModal(message.failure);
@@ -263,7 +252,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     form.reset();
                 });
         });
-    }
+    } 
 
     // Красивое оповещение пользователя при отправке формы
     function showThanksModal(message) {
@@ -291,11 +280,4 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 12000);
 
     }
-
-    // Маленькое дополнение: установлены nmp пакеты
-    fetch("http://localhost:3000/menu")
-        .then(data => data.json())
-        .then(res => console.log(res));
 });
-
-
