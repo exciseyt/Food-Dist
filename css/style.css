@@ -212,6 +212,7 @@ a {
     margin-top: 35px;
     padding-left: 26px;
     border-left: 1px solid #000;
+    user-select: none;
 }
 
 .tabheader__item {
@@ -301,6 +302,7 @@ a {
     align-items: center;
     font-size: 24px;
     color: rgba(0, 0, 0, .5);
+    user-select: none;
 }
 
 .offer__slider-wrapper {
@@ -378,6 +380,7 @@ a {
     display: flex;
     margin-top: 30px;
     justify-content: center;
+    user-select: none;
 }
 
 .calculating__choose-item {
@@ -581,6 +584,10 @@ a {
 
 .promotion__timer .title {
     text-align: right;
+}
+
+.timer {
+    user-select: none;
 }
 
 .promotion__timer .timer {
