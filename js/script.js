@@ -290,7 +290,8 @@ window.addEventListener("DOMContentLoaded", () => {
         current = document.querySelector("#current"),
         sliderWrapper = document.querySelector(".offer__slider-wrapper"),
         slidesField = document.querySelector(".offer__slider-inner"),
-        width = window.getComputedStyle(sliderWrapper).width;
+        width = window.getComputedStyle(sliderWrapper).width,
+        carouselIndicators = document.querySelector(".carousel-indicators");
 
     let slideIndex = 1,
         offset = 0;
@@ -313,6 +314,21 @@ window.addEventListener("DOMContentLoaded", () => {
         item.style.width = width;
     });
 
+    // Цикл по созданию элементов для навигации
+    const dots = [];
+
+    for (let i = 0; i < slides.length; i++) {
+        const dot = document.createElement("li");
+        dot.setAttribute("data-slide-to", i + 1);
+        dot.classList.add("dot");
+        carouselIndicators.append(dot);
+        dots.push(dot);
+
+        if (i == 0) {
+            dot.style.opacity = 1;
+        }
+    }
+
     next.addEventListener("click", () => {
         if (offset == +parseFloat(width) * (slides.length - 1)) {
             offset = 0;
@@ -333,6 +349,10 @@ window.addEventListener("DOMContentLoaded", () => {
         } else {
             current.textContent = slideIndex;
         }
+
+        dots.forEach(item => item.style.opacity = 0.5);
+
+        dots[slideIndex - 1].style.opacity = 1;
     });
 
     prev.addEventListener("click", () => {
@@ -355,5 +375,30 @@ window.addEventListener("DOMContentLoaded", () => {
         } else {
             current.textContent = slideIndex;
         }
+
+        dots.forEach(item => item.style.opacity = 0.5);
+
+        dots[slideIndex - 1].style.opacity = 1;
+    });
+
+    // Навигация по слайдеру с точками
+    dots.forEach(item => {
+        item.addEventListener("click", (e) => {
+            const slideTo = e.target.getAttribute("data-slide-to");
+
+            slideIndex = slideTo;
+            offset = +parseFloat(width) * (slideTo - 1);
+
+            slidesField.style.transform = `translateX(-${offset}px)`;
+
+            if (slides.length < 10) {
+                current.textContent = `0${slideIndex}`;
+            } else {
+                current.textContent = slideIndex;
+            }
+
+            dots.forEach(dot => dot.style.opacity = 0.5);
+            dots[slideIndex - 1].style.opacity = 1;
+        });
     });
 });
