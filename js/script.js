@@ -1,5 +1,5 @@
 window.addEventListener("DOMContentLoaded", () => {
-    // Tabs
+    // Главное меню
     const tabContent = document.querySelectorAll(".tabcontent"),
         tabs = document.querySelectorAll(".tabheader__item"),
         tabParent = document.querySelector(".tabheader__items");
@@ -36,7 +36,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    // Timer
+    // Таймер до конца акции
     const deadline = "2021-01-01";
 
     function getTimeRemaining(endtime) {
@@ -89,7 +89,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     setClock(".timer", deadline);
 
-    // Modal
+    // Всплывающее модельное окно
     const modal = document.querySelector(".modal"),
         modalTrigger = document.querySelectorAll("[data-modal]");
 
@@ -282,7 +282,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    // Slider
+    // Слайдер типа "Карусель"
     const slides = document.querySelectorAll(".offer__slide"),
         prev = document.querySelector(".offer__slider-prev"),
         next = document.querySelector(".offer__slider-next"),
@@ -329,6 +329,19 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function getNumberSlide() {
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+    }
+
+    function getDots() {
+        dots.forEach(item => item.style.opacity = 0.5);
+        dots[slideIndex - 1].style.opacity = 1;
+    }
+
     next.addEventListener("click", () => {
         if (offset == +parseFloat(width) * (slides.length - 1)) {
             offset = 0;
@@ -344,15 +357,8 @@ window.addEventListener("DOMContentLoaded", () => {
             slideIndex++;
         }
 
-        if (slides.length < 10) {
-            current.textContent = `0${slideIndex}`;
-        } else {
-            current.textContent = slideIndex;
-        }
-
-        dots.forEach(item => item.style.opacity = 0.5);
-
-        dots[slideIndex - 1].style.opacity = 1;
+        getNumberSlide();
+        getDots();
     });
 
     prev.addEventListener("click", () => {
@@ -370,15 +376,8 @@ window.addEventListener("DOMContentLoaded", () => {
             slideIndex--;
         }
 
-        if (slides.length < 10) {
-            current.textContent = `0${slideIndex}`;
-        } else {
-            current.textContent = slideIndex;
-        }
-
-        dots.forEach(item => item.style.opacity = 0.5);
-
-        dots[slideIndex - 1].style.opacity = 1;
+        getNumberSlide();
+        getDots();
     });
 
     // Навигация по слайдеру с точками
@@ -391,14 +390,76 @@ window.addEventListener("DOMContentLoaded", () => {
 
             slidesField.style.transform = `translateX(-${offset}px)`;
 
-            if (slides.length < 10) {
-                current.textContent = `0${slideIndex}`;
-            } else {
-                current.textContent = slideIndex;
-            }
-
-            dots.forEach(dot => dot.style.opacity = 0.5);
-            dots[slideIndex - 1].style.opacity = 1;
+            getNumberSlide();
+            getDots();
         });
     });
+
+    // Калькулятор по расчету калорий
+    const result = document.querySelector(".calculating__result span");
+    let gender = "female", height, weight, age, ratio = 1.335;
+
+    function calcTotal() {
+        if (!gender || !height || !weight || !age || !ratio) {
+            result.textContent = "____";
+            return;
+        }
+
+        if (gender === "male") {
+            result.textContent = Math.round((88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age)) * ratio);
+        } else {
+            result.textContent = Math.round((447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age)) * ratio);
+        }
+    }
+
+    calcTotal();
+
+    function getStaticInformation(parentSelector, activeClass) {
+        const elements = document.querySelectorAll(`${parentSelector} div`);
+
+        elements.forEach(item => {
+            item.addEventListener("click", (e) => {
+                if (e.target.getAttribute("data-ratio")) {
+                    ratio = +e.target.getAttribute("data-ratio");
+                } else {
+                    gender = e.target.getAttribute("id");
+                }
+
+                elements.forEach(item => {
+                    item.classList.remove(activeClass);
+                });
+
+                e.target.classList.add(activeClass);
+
+                calcTotal();
+            });
+        });
+    }
+
+    getStaticInformation("#gender", "calculating__choose-item_active");
+    getStaticInformation(".calculating__choose_big", "calculating__choose-item_active");
+
+    function getDynamicInformation(selector) {
+        const input = document.querySelector(selector);
+
+        input.addEventListener("input", () => {
+            switch (input.getAttribute("id")) {
+                case "height":
+                    height = +input.value;
+                    break;
+                case "weight":
+                    weight = +input.value;
+                    break;
+                case "age":
+                    age = +input.value;
+                    break;
+            }
+
+            calcTotal();
+        });
+    }
+
+    getDynamicInformation("#height");
+    getDynamicInformation("#weight");
+    getDynamicInformation("#age");
 });
