@@ -5,12 +5,12 @@ window.addEventListener("DOMContentLoaded", () => {
         tabParent = document.querySelector(".tabheader__items");
 
     function hideTapContent() {
-        tabContent.forEach(item => {
-            item.classList.add("hide");
+        tabContent.forEach(tab => {
+            tab.classList.add("hide");
         });
 
-        tabs.forEach(item => {
-            item.classList.remove("tabheader__item_active");
+        tabs.forEach(tab => {
+            tab.classList.remove("tabheader__item_active");
         });
     }
 
@@ -26,8 +26,8 @@ window.addEventListener("DOMContentLoaded", () => {
     tabParent.addEventListener("click", (event) => {
         const target = event.target;
         if (target && target.classList.contains("tabheader__item")) {
-            tabs.forEach((item, i) => {
-                if (target == item) {
+            tabs.forEach((tab, i) => {
+                if (target == tab) {
                     hideTapContent();
                     showTapContent(i);
                 }
@@ -100,8 +100,8 @@ window.addEventListener("DOMContentLoaded", () => {
         clearInterval(modalTimerId);
     }
 
-    modalTrigger.forEach(item => {
-        item.addEventListener("click", openModal);
+    modalTrigger.forEach(modal => {
+        modal.addEventListener("click", openModal);
     });
 
     function closeModal() {
@@ -175,22 +175,10 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Получение данных с сервера
-    const getResources = async (url) => {
-        const res = await fetch(url);
-
-        if (!res.ok) {
-            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-        }
-
-        return await res.json();
-    };
-
     // Получаем данные с db.json для карточек меню
     // UPD: Получение данных с json-server помощью библиотеки "Axios"
-    axios.get("http://localhost:3000/menu")
-        .then(data => {
-            data.data.forEach(({ img, altimg, title, descr, price }) => {
+    axios.get("http://localhost:3000/menu").then(data => {
+            data.data.forEach(({img, altimg, title, descr, price }) => {
                 new MenuCard(img, altimg, title, descr, price, ".menu .container").render();
             });
         });
@@ -206,8 +194,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const thanksModal = document.createElement("div");
 
-    forms.forEach(item => {
-        bindPostData(item);
+    forms.forEach(form => {
+        bindPostData(form);
     });
 
     // Постинг данных на сервер
@@ -310,8 +298,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
     sliderWrapper.style.overflow = "hidden";
 
-    slides.forEach(item => {
-        item.style.width = width;
+    slides.forEach(slide => {
+        slide.style.width = width;
     });
 
     // Цикл по созданию элементов для навигации
@@ -338,7 +326,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     function getDots() {
-        dots.forEach(item => item.style.opacity = 0.5);
+        dots.forEach(dot => dot.style.opacity = 0.5);
         dots[slideIndex - 1].style.opacity = 1;
     }
 
@@ -381,8 +369,8 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     // Навигация по слайдеру с точками
-    dots.forEach(item => {
-        item.addEventListener("click", (e) => {
+    dots.forEach(dot => {
+        dot.addEventListener("click", (e) => {
             const slideTo = e.target.getAttribute("data-slide-to");
 
             slideIndex = slideTo;
@@ -397,7 +385,41 @@ window.addEventListener("DOMContentLoaded", () => {
 
     // Калькулятор по расчету калорий
     const result = document.querySelector(".calculating__result span");
-    let gender = "female", height, weight, age, ratio = 1.335;
+    let gender, height, weight, age, ratio;
+
+    if (localStorage.getItem("gender")) {
+        gender = localStorage.getItem("gender");
+    } else {
+        localStorage.setItem("gender", "female");
+        gender = localStorage.getItem("gender");
+    }
+
+    if (localStorage.getItem("ratio")) {
+        ratio = localStorage.getItem('ratio');
+    } else {
+        localStorage.setItem("ratio", 1.375);
+        ratio = localStorage.getItem("ratio");
+    }
+
+    function initLocalSettings(selector, activeClass) {
+        const elements = document.querySelectorAll(selector);
+
+        elements.forEach(elem => {
+            elem.style.transition = "none";
+            elem.classList.remove(activeClass);
+
+            if (elem.getAttribute("id") === localStorage.getItem("gender")) {
+                elem.classList.add(activeClass);
+            }
+
+            if (elem.getAttribute("data-ratio") === localStorage.getItem("ratio")) {
+                elem.classList.add(activeClass);
+            }
+        });
+    }
+
+    initLocalSettings("#gender div", "calculating__choose-item_active");
+    initLocalSettings(".calculating__choose_big div", "calculating__choose-item_active"); 
 
     function calcTotal() {
         if (!gender || !height || !weight || !age || !ratio) {
@@ -414,19 +436,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
     calcTotal();
 
-    function getStaticInformation(parentSelector, activeClass) {
-        const elements = document.querySelectorAll(`${parentSelector} div`);
+    function getStaticInformation(selector, activeClass) {
+        const elements = document.querySelectorAll(selector);
 
-        elements.forEach(item => {
-            item.addEventListener("click", (e) => {
+        elements.forEach(elem => {
+            elem.addEventListener("click", (e) => {
+                elem.style.transition = "0.3s all";
+
                 if (e.target.getAttribute("data-ratio")) {
                     ratio = +e.target.getAttribute("data-ratio");
+                    localStorage.setItem("ratio", +e.target.getAttribute("data-ratio"));
                 } else {
                     gender = e.target.getAttribute("id");
+                    localStorage.setItem("gender", e.target.getAttribute("id"));
                 }
 
-                elements.forEach(item => {
-                    item.classList.remove(activeClass);
+                elements.forEach(elem => {
+                    elem.classList.remove(activeClass);
                 });
 
                 e.target.classList.add(activeClass);
@@ -436,13 +462,19 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    getStaticInformation("#gender", "calculating__choose-item_active");
-    getStaticInformation(".calculating__choose_big", "calculating__choose-item_active");
+    getStaticInformation("#gender div", "calculating__choose-item_active");
+    getStaticInformation(".calculating__choose_big div", "calculating__choose-item_active");
 
     function getDynamicInformation(selector) {
         const input = document.querySelector(selector);
 
         input.addEventListener("input", () => {
+            if (input.value.match(/\D/g)) {
+                input.style.border = "1px solid red";
+            } else {
+                input.style.border = "none";
+            }
+
             switch (input.getAttribute("id")) {
                 case "height":
                     height = +input.value;
